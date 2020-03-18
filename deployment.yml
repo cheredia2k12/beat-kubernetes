@@ -1,0 +1,25 @@
+apiVersion: apps/v1 # Usa apps/v1beta2 para versiones anteriores a 1.9.0
+kind: Deployment
+metadata:
+  name: hello-node-deployment
+spec:
+  selector:
+    matchLabels:
+      app: hello-node
+  replicas: 2 # indica al controlador que ejecute 2 pods
+  template:
+    metadata:
+      labels:
+        app: hello-node
+      annotations: 
+        co.elastic.metrics/module: system
+        co.elastic.metrics/metricsets: "cpu,load,memory,process,uptime"
+        co.elastic.metrics/processes: '.*' 
+        co.elastic.metrics/period: 1m
+    spec:
+      containers:
+      - name: hello-node
+        image: gcr.io/hello-minikube-zero-install/hello-node
+        ports:
+        - containerPort: 80
+
