@@ -1,0 +1,18 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: logstash-service
+  namespace: kube-system
+spec:
+  selector:
+    app: logstash
+  ports:
+  - name: metricbeat
+    protocol: TCP
+    port: 5045
+    targetPort: 5045
+  - name: filebeat
+    protocol: TCP
+    port: 5044
+    targetPort: 5044
+
