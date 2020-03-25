@@ -15,12 +15,26 @@ data:
       reload.enabled: false
 
     # To enable hints based autodiscover uncomment this:
+    # metricbeat.autodiscover:
+    #  providers:
+    #    - type: kubernetes
+    #      host: ${NODE_NAME}
+    #      hints.enabled: true
+
+    # Configure specific service module based on k8s deployment
     metricbeat.autodiscover:
       providers:
         - type: kubernetes
           host: ${NODE_NAME}
-          hints.enabled: true
+          templates:
+            - condition.equals:
+                kubernetes.labels.app: apache
+              config:
+                - module: apache
+                  period: ${PERIOD}
+                  metricsets: ["status"]
 
+      
     processors:
       - add_cloud_metadata:
 
