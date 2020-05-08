@@ -1,0 +1,53 @@
+---
+- hosts: elk
+  become: yes
+  user: admin
+  vars:
+    packages:
+    - logstash
+    - elasticsearch
+    - kibana
+    - apm-server
+
+  tasks:
+    - name: Install elastick GPG key
+      rpm_key:
+        state: present
+        key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+
+    - name: Install elasticsearch repo
+      yum_repository:
+        name: elasticsearch
+        description: Elasticsearch repository for 7.x packages
+        baseurl: https://artifacts.elastic.co/packages/7.x/yum
+        gpgcheck: yes
+        gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+        enabled: yes
+        state: present
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Install components
+      yum:
+        name: "{{ packages }}"
+        state: present
+
+    - name: Start servers
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      loop:
+      - elasticsearch
+      - kibana 
+      - apm-server
+      - logstash
+
+    - name: Copy logstash filter config
+      copy:
+        src: ./logstash.conf
+        dest: /etc/logstash/logstash.conf
+        owner: root
+        group: root
+        mode: 0644
